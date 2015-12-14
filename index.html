@@ -8,13 +8,13 @@
 <!-- see http://zimjs.com/templates for more templates and meta tags -->
 
 <script>var zon = true; // true for comments from zim code</script>
-<script src="../../../code/zim_1.4.4.js"></script>
-<script src="../../../code/createjs-2015.05.21.min.js"></script> 
+<script src="http://d309knd7es5f10.cloudfront.net/zim_1.5_min.js"></script>
+<script src="http://code.createjs.com/createjs-2015.05.21.min.js"></script> 
 <!-- should use CDN links available from CreateJS and ZIM sites -->
 
 <style>
-	body {margin:0px; padding:0px; background-color:#000;}
-	#myCanvas {position:absolute; background-color:#fff;}
+	body {margin:0px; padding:0px; background-color:#22637f;}
+	#myCanvas {position:absolute; background-color:#22637f;}
 </style>
 
 <script>
@@ -36,16 +36,51 @@ frame.on("ready", function() {
 	var stageW = frame.width;
 	var stageH = frame.height;
 	
-	
+	var stitchContainer = new createjs.Container();
+	stage.addChild(stitchContainer);
+	var fontSize = 16;
+
+	function stitchMaker(){
+		var posX = 0;
+		var posY = 0;
+		
+		for(i=0; i<((stageW/fontSize + 1)*(stageH/fontSize + 1)); i++){
+
+			if (posX >= stageW){
+				posX = 0;
+				posY = posY + fontSize;
+				var stitch = new createjs.Text("X", "16px Arial", "#2980b9");
+				stage.addChild(stitch);
+				stitch.addEventListener("click", colourChange);
+				stitch.x = posX;
+				stitch.y = posY;
+				posX = posX+fontSize;
+				console.log("created");
+			} else {
+				var stitch = new createjs.Text("X", "16px Arial", "#2980b9");
+				stage.addChild(stitch);
+				stitch.addEventListener("click", colourChange);
+				stitch.x = posX;
+				stitch.y = posY;
+				posX = posX+fontSize;
+				console.log("created");
+			}
+		};
+
+			return stitch;
+
+	};
+
+	function colourChange(e){
+		e.target.color = "#FFF";
+		console.log(e.target);
+		stage.update();
+	}
+		stitchMaker();
+		stage.update();
 
 
 
-
-
-
-
-
-		stage.update();	
 
 
 
