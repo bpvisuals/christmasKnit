@@ -2,19 +2,20 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Christmas Knit</title> 
+<title>Xmas Knit</title>
 
 <!-- for CreateJS and ZIMjs http://zimjs.com - free to modify - Dan Zen 2015 -->
 <!-- see http://zimjs.com/templates for more templates and meta tags -->
 
 <script>var zon = true; // true for comments from zim code</script>
 <script src="http://d309knd7es5f10.cloudfront.net/zim_1.5_min.js"></script>
-<script src="http://code.createjs.com/createjs-2015.05.21.min.js"></script> 
+<script src="http://code.createjs.com/createjs-2015.05.21.min.js"></script>
+<script src="js/canvas2image.js"></script>
 <!-- should use CDN links available from CreateJS and ZIM sites -->
 
 <style>
-	body {margin:0px; padding:0px; background-color:#22637f;}
-	#myCanvas {position:absolute; background-color:#22637f;}
+	body {margin:0px; padding:0px; background-color:#fff;}
+	#myCanvas {position:absolute; background-color:#E7E9F0;}
 </style>
 
 <script>
@@ -23,75 +24,103 @@
 // "none"		sets canvas and stage to dimensions and does not scale if window changes
 // "fit"		sets canvas and stage to dimensions and scales to fit inside window size
 // "outside"	sets canvas and stage to dimensions and scales to fit outside window size
-// "full"		sets canvas and stage to window size (canvas is actually set to screen size)
+// "full"		sets canvas and stage  to window size (canvas is actually set to screen size)
 
 var scaling = "full"; // fit scales to fit the browser window while keeping the aspect ratio
 var width = 960;
 var height = 640;
-var frame = new zim.Frame(scaling, width, height); 
-frame.on("ready", function() {	
+var frame = new zim.Frame(scaling, width, height);
+
+frame.on("ready", function() {
 	zog("ready from ZIM Frame");
 
-	
+
 	var stage = frame.stage;
 	var stageW = frame.width;
 	var stageH = frame.height;
-	
+
+	var background = new zim.Rectangle(stageW, stageH, "#084872");
+	stage.addChild(background);
+	stage.update();
+
 	var stitchContainer = new createjs.Container();
 	stage.addChild(stitchContainer);
+	stitchContainer.n = "cont";
 	var fontSize = 16;
+	var stitchColour = "#0D5A9F";
+
+	////////////////////////////////////////////////////////////////////////
+	// Building stitches //
 
 	function stitchMaker(){
 		var posX = 0;
 		var posY = 0;
 		var stitch;
-		for(i=0; i<((stageW/fontSize + 1)*(stageH/fontSize + 1)); i++){
+		zog("calling StitchMaker");
 
+		var xBounds;
+
+		for(i=0; i<((stageW/fontSize + 1)*(stageH/fontSize + 1)); i++){
+			xBounds = new createjs.Shape();
+			xBounds.graphics.f("rgba(0,0,0,.01)").r(0,0,16,16);
 			if (posX >= stageW){
 				posX = 0;
 				posY = posY + fontSize;
 				stitch = new createjs.Container();
-				stage.addChild(stitch);
-				// stitch.addChild(new zim.Rectangle(12,16, "#22637f"));
-				stitch.addChild(new createjs.Text("X", "16px Arial", "#2980b9"));
-				stitch.addEventListener("click", colourChange);
+				stitch.n = "hi";
+				stitch.mouseChildren = false;
+				stitchContainer.addChild(stitch);
+				// stitch.hitArea = xBounds;
+			  stitch.addChild(new createjs.Text("X", "bold 16px Arial", stitchColour));
+				stitch.addChild(xBounds);
 				stitch.x = posX;
 				stitch.y = posY;
 				posX = posX+fontSize;
-				console.log("created");
-				console.log(stitch);
 			} else {
 				stitch = new createjs.Container();
-				stage.addChild(stitch);
-				// stitch.addChild(new zim.Rectangle(12,16, "#22637f"));
-				stitch.addChild(new createjs.Text("X", "bold 16px Arial", "#2980b9"));
-				stage.addChild(stitch);
-				stitch.addEventListener("click", colourChange);
+				stitch.mouseChildren = false;
+				stitchContainer.addChild(stitch);
+				// stitch.hitArea = xBounds;
+				stitch.addChild(new createjs.Text("X", "bold 16px Arial", stitchColour));
+				stitch.addChild(xBounds);
 				stitch.x = posX;
 				stitch.y = posY;
 				posX = posX+fontSize;
-				console.log("created");
 			}
+
+			stitch.rolled = false;
+
 		};
 
-			stage.update();
-			return stitch;
+		stage.update();
+		return stitch;
 
 	};
 
+stitchContainer.on("mousedown", colourChange);
+
+
+////////////////////////////////////////////////////////////////////////
+// Changing colour of stitches on click event //
+
 	var count = 0;
 	function colourChange(e){
-		console.log("click");
+		zog("clicked!");
+		//console.log(e.target.n);
+		//e.target.alpha = 0;
+		//stage.update();
+		//return;
+		e.target.rolled = true;
 
-		if(e.currentTarget.getChildAt(0).color == "#2980b9"){
+		if(e.target.getChildAt(0).color == "#0D5A9F"){
 			count = 0;
-		} else if(e.currentTarget.getChildAt(0).color == "#FFF"){
+		} else if(e.target.getChildAt(0).color == "#71b5d3"){
 			count = 1;
-		} else if(e.currentTarget.getChildAt(0).color == "#c16f82"){
+		} else if(e.target.getChildAt(0).color == "#f1eee9"){
 			count = 2;
-		} else if(e.currentTarget.getChildAt(0).color == "#27ae60"){
+		} else if(e.target.getChildAt(0).color == "#357c6e"){
 			count = 3;
-		} else if(e.currentTarget.getChildAt(0).color == "#71b5d3"){
+		} else if(e.target.getChildAt(0).color == "#c16f82"){
 			count = 4;
 		} else {
 			count = 5;
@@ -100,50 +129,228 @@ frame.on("ready", function() {
 
 		switch (count) {
 			case 0:
-				e.currentTarget.getChildAt(0).color = "#FFF";
+				e.target.getChildAt(0).color = "#71b5d3";
 				stage.update();
 				break;
 			case 1:
-				e.currentTarget.getChildAt(0).color = "#c16f82";
+				e.target.getChildAt(0).color = "#f1eee9";
 				stage.update();
 				break;
 			case 2:
-				e.currentTarget.getChildAt(0).color = "#27ae60";
+				e.target.getChildAt(0).color = "#357c6e";
 				stage.update();
 				break;
 			case 3:
-				e.currentTarget.getChildAt(0).color = "#71b5d3";
+				e.target.getChildAt(0).color = "#c16f82";
 				stage.update();
 				break;
 			case 4:
-				e.currentTarget.getChildAt(0).color = "#f1c40f";
+				e.target.getChildAt(0).color = "#f1c40f";
 				stage.update();
 				break;
 			case 5:
-				e.currentTarget.getChildAt(0).color = "#2980b9";
+				e.target.getChildAt(0).color = "#0D5A9F";
 				stage.update();
 				break;
-
-
 		}
-		
+
 	}
+
+stitchContainer.on("pressmove", colourDrag);
+
+////////////////////////////////////////////////////////////////////////
+// Enabling colour change on drag event //
+
+
+
+function colourDrag(e){
+	var stitch;
+	// console.log("hitting");
+		for(s=0;s<stitchContainer.numChildren;s++){
+			// console.log("ran loop");
+			stitch = stitchContainer.getChildAt(s);
+			if(stitch.rolled){
+				continue;
+			}
+			if (zim.hitTestPoint(stitch, stage.mouseX, stage.mouseY)) {
+				console.log("hit");
+				stitch.rolled = true;
+
+				if(stitchContainer.getChildAt(s).getChildAt(0).color == "#0D5A9F"){
+					count = 0;
+				} else if(stitchContainer.getChildAt(s).getChildAt(0).color == "#71b5d3"){
+					count = 1;
+				} else if(stitchContainer.getChildAt(s).getChildAt(0).color == "#f1eee9"){
+					count = 2;
+				} else if(stitchContainer.getChildAt(s).getChildAt(0).color == "#357c6e"){
+					count = 3;
+				} else if(stitchContainer.getChildAt(s).getChildAt(0).color == "#c16f82"){
+					count = 4;
+				} else {
+					count = 5;
+				}
+
+				switch (count) {
+					case 0:
+						stitchContainer.getChildAt(s).getChildAt(0).color = "#71b5d3";
+						stage.update();
+						break;
+					case 1:
+						stitchContainer.getChildAt(s).getChildAt(0).color = "#f1eee9";
+						stage.update();
+						break;
+					case 2:
+						stitchContainer.getChildAt(s).getChildAt(0).color = "#357c6e";
+						stage.update();
+						break;
+					case 3:
+						stitchContainer.getChildAt(s).getChildAt(0).color = "#c16f82";
+						stage.update();
+						break;
+					case 4:
+						stitchContainer.getChildAt(s).getChildAt(0).color = "#f1c40f";
+						stage.update();
+						break;
+					case 5:
+						stitchContainer.getChildAt(s).getChildAt(0).color = "#0D5A9F";
+						stage.update();
+						break;
+				}
+		}
+	}
+	}
+
+	stitchMaker();
+
+////
+
+stitchContainer.on("pressup", colourUp);
+
+function colourUp(){
+
+	var stitch;
+
+		for(s=0;s<stitchContainer.numChildren;s++){
+
+			stitch = stitchContainer.getChildAt(s);
+			stitch.rolled = false;
+		}
+
+}
+
+	////////////////////////////////////////////////////////////////////////
+	// Toolbar //
+
+	var toolBarContainer = new createjs.Container();
+	stage.addChild(toolBarContainer);
+
+
+	var toolBar = new zim.Rectangle(stageW, 46, "#E7E9F0");
+	toolBar.zIndex = stage.numChildren;
+	toolBarContainer.addChild(toolBar);
+
+	var button1 = new zim.Rectangle(20, 20, "#c16f82");
+	button1.x = 20;
+	button1.y = 12;
+	toolBarContainer.addChild(button1);
+
+	var button2 = new zim.Rectangle(20, 20, "#c6c6c6");
+	button2.x = 50;
+	button2.y = 12;
+	toolBarContainer.addChild(button2);
+
+	var button3 = new zim.Rectangle(20, 20, "#29685c");
+	button3.x = 80;
+	button3.y = 12;
+	toolBarContainer.addChild(button3);
+
+	var button4 = new zim.Rectangle(20, 20, "#0D5A9F");
+	button4.x = 110;
+	button4.y = 12;
+	toolBarContainer.addChild(button4);
+
+	////////////////////////////////////////////////////////////////////////
+	// Toggling the background & stitch colours //
+
+		button1.on("click", function(){
+		background.setFill("#894556");
+		stitchColour = "#c16f82";
+		stitchContainer.removeAllChildren();
 		stitchMaker();
 		stage.update();
 
+	});
 
-
-
-
-
-
+		button2.on("click", function(){
+		background.setFill("#c6c6c6");
+		stitchColour = "#F1EEE9";
+		stitchContainer.removeAllChildren();
+		stitchMaker();
+		stage.update();
 
 	});
-	
-	// making tiles in a lot of these examples
-	// so will just include this in each file
-	
 
+		button3.on("click", function(){
+		background.setFill("#29685c");
+		stitchColour = "#357c6e";
+		stitchContainer.removeAllChildren();
+		stitchMaker();
+		stage.update();
+
+	});
+
+		button4.on("click", function(){
+		background.setFill("#084872");
+		stitchColour = "#0D5A9F";
+		stitchContainer.removeAllChildren();
+		stitchMaker();
+		stage.update();
+
+	});
+
+	////////////////////////////////////////////////////////////////////////
+	// Start Page //
+
+	var startPage = new createjs.Container();
+	stage.addChild(startPage);
+
+	var darkScreen = new zim.Rectangle(stageW, stageH, "black");
+	startPage.addChild(darkScreen);
+	darkScreen.alpha = 0.6;
+
+	var caption1 = new createjs.Text("Click on the boxes to change your background colour", "18px Arial", "white");
+	startPage.addChild(caption1);
+	caption1.x = 150;
+	caption1.y = 12;
+
+	var caption2 = new createjs.Text("Choose colours of stitches by clicking on them.", "18px Arial", "white");
+	startPage.addChild(caption2);
+	zim.centerReg(caption2);
+	caption2.x = stageW/2;
+	caption2.y = (stageH/2 - 50);
+
+	var startButton = new zim.Rectangle(120, 35, "#084872");
+	startButton.x = stageW/2;
+	startButton.y = (stageH/2 - 5);
+	zim.centerReg(startButton);
+
+	var getStarted = new createjs.Text("Get Started", "bold 12px Arial", "white");
+	zim.centerReg(getStarted);
+	getStarted.x = 58;
+	getStarted.y = 17;
+	startButton.addChild(getStarted);
+
+	startButton.addChild();
+	startPage.addChild(startButton);
+
+	startButton.on("click", function(){
+		stage.removeChild(startPage);
+		stage.update();
+	});
+
+	stage.update();
+
+	});
 
 
 
